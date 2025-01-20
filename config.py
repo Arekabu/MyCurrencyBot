@@ -6,3 +6,11 @@ currencies = {
     'евро'   : 'EUR',
     'рубль'  : 'RUB'
 }
+
+country_flags = {
+    'доллар' : '\U0001F1FA\U0001F1F8',
+    'евро'   : '\U0001F1EA\U0001F1FA',
+    'рубль'  : '\U0001F1F7\U0001F1FA'
+}
+
+request_string = []
