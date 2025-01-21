@@ -23,20 +23,18 @@ def start_help(message: telebot.types.Message):
     # btn2 = types.InlineKeyboardButton(text='us Доллар', callback_data = 'доллар')
     # btn3 = types.InlineKeyboardButton(text='eu Евро', callback_data = 'евро')
 
-    text = '''Бот конвертирует указанную сумму из первой валюты во вторую.\n
+    text = '''Бот конвертирует указанную <u>сумму</u> из <u>первой валюты</u> во <u>вторую</u>.\n
 Напишите через пробел:\n
-<первая валюта>  <вторая валюта>  <сумма первой валюты>\n
-Пример запроса:\n
-доллар рубль 1000\n
-\n
-Для просмотра доступных валют наберите команду /values\n
-Запрос можно вводить вручную или использовать кнопки.
-Выберите первую валюту:
+<b><u>первая валюта</u>  <u>вторая валюта</u>  <u>сумма первой валюты</u></b>\n
+Пример запроса: <code>доллар рубль 100</code>\n
+Для просмотра доступных валют наберите /values\n
+Запрос можно вводить вручную или использовать кнопки.\n
+<b>Выберите первую валюту:</b>
     '''
     # bot.send_message(message.chat.id, text)
-    markup.row(*btns)
+    markup.add(*btns)
     # markup.add(InlineKeyboardButton("Кнопка4", callback_data="button4"),InlineKeyboardButton("Кнопка5", callback_data="button5"))
-    bot.send_message(message.from_user.id, text, reply_markup=markup)
+    bot.send_message(message.from_user.id, text, reply_markup=markup, parse_mode="HTML")
 
 @bot.message_handler(commands=['values'])
 def legit_values(message: telebot.types.Message):
