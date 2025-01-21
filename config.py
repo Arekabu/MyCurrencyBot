@@ -24,5 +24,3 @@ country_flags = {
     'юань'   : '\U0001F1E8\U0001F1F3',
     'гривна' : '\U0001F1FA\U0001F1E6'
 }
-
-request_string = []

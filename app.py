@@ -1,9 +1,21 @@
 import telebot
+from datetime import datetime
 from telebot import types
 from extensions import CurrencyConverter, APIException
-from config import TOKEN, currencies, country_flags, request_string
+from config import TOKEN, currencies, country_flags
 
 bot = telebot.TeleBot(TOKEN)
+
+request_string = {}
+
+def check_request_string(user_id):
+    global request_string
+
+    if user_id in request_string.keys():
+        return request_string
+    else:
+        request_string[user_id] = []
+    return request_string
 
 def is_number(string):
     string = string.replace(',', '.') if ',' in string else string
@@ -15,7 +27,9 @@ def is_number(string):
 
 @bot.message_handler(commands=['start', 'help'])
 def start_help(message: telebot.types.Message):
-    request_string.clear()
+    global request_string
+    request_string = check_request_string(message.from_user.id)
+
     markup = types.InlineKeyboardMarkup(row_width=3)
 
     btns = [types.InlineKeyboardButton(text=f"{country_flags[key]} {key.title()}", callback_data = key) for key in currencies.keys()]
@@ -46,10 +60,14 @@ def legit_values(message: telebot.types.Message):
 
 @bot.message_handler(content_types=['text', ])
 def convert(message: telebot.types.Message):
+    global request_string
+    # print(message)
+    id = message.chat.id
+    request_string = check_request_string(id)
     try:
-        if is_number(message.text) and len(request_string) == 2:
-            request_string.append(f"{message.text}")
-            values = request_string
+        if is_number(message.text) and len(request_string[id]) == 2:
+            request_string[id].append(f"{message.text}")
+            values = request_string[id]
         else:
             values = message.text.lower().split(' ')
 
@@ -67,14 +85,21 @@ def convert(message: telebot.types.Message):
         text = f'{amount} {currencies[base]} = {price} {currencies[quote]}'
         bot.reply_to(message, text)
 
-    request_string.clear()
+    with open('logs.txt', 'a') as write_log:
+        write_log.write(f'{datetime.now().strftime("%Y-%m-%d %H:%M:%S")} username:{message.chat.username} id:{id} request:{request_string[id]}\n')
+
+    del(request_string[id])
 
 @bot.callback_query_handler(func = lambda callback: True)
 def callpack_message(callback):
+    global request_string
+    id = callback.from_user.id
+    # print(callback.from_user)
+    request_string = check_request_string(id)
     markup = types.InlineKeyboardMarkup(row_width=3)
     if callback.data in currencies.keys():
-        request_string.append(callback.data)
-        if len(request_string) == 1:
+        request_string[id].append(callback.data)
+        if len(request_string[id]) == 1:
             for key, value in currencies.items():
                 if key == callback.data:
                     continue
@@ -87,9 +112,9 @@ def callpack_message(callback):
             markup.row(btn1, btn2, btn3)
             bot.send_message(callback.message.chat.id, 'Выберите или введите вручную в сообщении сумму:', reply_markup=markup)
     else:
-        request_string.append(f'{callback.data}')
+        request_string[id].append(f'{callback.data}')
 
-        callback.message.text = ' '.join(request_string)
+        callback.message.text = ' '.join(request_string[id])
         convert(callback.message)
 
 bot.polling()
