@@ -77,6 +77,14 @@ def convert(message: telebot.types.Message):
         base, quote, amount = values
         amount = amount.replace(',', '.') if ',' in amount else amount
         price = CurrencyConverter.get_price(base, quote, amount)
+
+        if '.' in amount:
+            amount = f'{float(amount):_}'.replace('_', ' ')
+        else:
+            amount = f'{int(amount):_}'.replace('_', ' ')
+
+        price = f'{price:_}'.replace('_', ' ')
+
     except APIException as e:
         bot.reply_to(message, f'Ошибка пользователя.\n{e}')
     except Exception as e:
@@ -117,4 +125,4 @@ def callpack_message(callback):
         callback.message.text = ' '.join(request_string[id])
         convert(callback.message)
 
-bot.polling()
+bot.polling(non_stop=True, interval=0)
