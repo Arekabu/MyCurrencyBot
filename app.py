@@ -112,17 +112,36 @@ def callpack_message(callback):
                 if key == callback.data:
                     continue
                 markup.add(types.InlineKeyboardButton(text=f"{country_flags[key]} {key.title()}", callback_data = key))
+            bot.edit_message_text(chat_id=callback.message.chat.id,
+                                  message_id=callback.message.message_id,
+                                  text=f'Первая валюта: {country_flags[callback.data]} {callback.data.title()}',
+                                  reply_markup=None)
+            bot.answer_callback_query(callback.id)
+            # bot.edit_message_reply_markup(chat_id=callback.message.chat.id, message_id=callback.message.message_id, reply_markup=None)
+            # print(request_string)
+
+            # bot.delete_message(chat_id=callback.message.chat.id, message_id=callback.message.message_id)
+
             bot.send_message(callback.message.chat.id, 'Выберите вторую валюту:', reply_markup=markup)
         else:
             btn1 = types.InlineKeyboardButton(text='1', callback_data = '1')
             btn2 = types.InlineKeyboardButton(text='100', callback_data='100')
             btn3 = types.InlineKeyboardButton(text='1000', callback_data='1000')
             markup.row(btn1, btn2, btn3)
+            bot.answer_callback_query(callback.id)
+            bot.edit_message_text(chat_id=callback.message.chat.id,
+                                  message_id=callback.message.message_id,
+                                  text=f'Вторая валюта: {country_flags[callback.data]} {callback.data.title()}',
+                                  reply_markup=None)
             bot.send_message(callback.message.chat.id, 'Выберите или введите вручную в сообщении сумму:', reply_markup=markup)
     else:
         request_string[id].append(f'{callback.data}')
-
+        bot.answer_callback_query(callback.id)
+        bot.edit_message_text(chat_id=callback.message.chat.id,
+                              message_id=callback.message.message_id,
+                              text=f'Сумма первой валюты: {callback.data}',
+                              reply_markup=None)
         callback.message.text = ' '.join(request_string[id])
         convert(callback.message)
 
-bot.polling(non_stop=True, interval=0)
+bot.infinity_polling(none_stop=True)
