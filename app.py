@@ -45,9 +45,7 @@ def start_help(message: telebot.types.Message):
 Запрос можно вводить вручную или использовать кнопки.\n
 <b>Выберите первую валюту:</b>
     '''
-    # bot.send_message(message.chat.id, text)
     markup.add(*btns)
-    # markup.add(InlineKeyboardButton("Кнопка4", callback_data="button4"),InlineKeyboardButton("Кнопка5", callback_data="button5"))
     bot.send_message(message.from_user.id, text, reply_markup=markup, parse_mode="HTML")
 
 @bot.message_handler(commands=['values'])
@@ -91,7 +89,8 @@ def convert(message: telebot.types.Message):
         bot.reply_to(message, f'Не удалось обработать команду.\n{e}')
     else:
         text = f'{amount} {currencies[base]} = {price} {currencies[quote]}'
-        bot.reply_to(message, text)
+        bot.send_message(message.chat.id, text)
+        # bot.reply_to(message, text)
 
     with open('logs.txt', 'a') as write_log:
         write_log.write(f'{datetime.now().strftime("%Y-%m-%d %H:%M:%S")} username:{message.chat.username} id:{id} request:{request_string[id]}\n')
@@ -99,10 +98,9 @@ def convert(message: telebot.types.Message):
     del(request_string[id])
 
 @bot.callback_query_handler(func = lambda callback: True)
-def callpack_message(callback):
+def callback_message(callback):
     global request_string
     id = callback.from_user.id
-    # print(callback.from_user)
     request_string = check_request_string(id)
     markup = types.InlineKeyboardMarkup(row_width=3)
     if callback.data in currencies.keys():
@@ -117,11 +115,6 @@ def callpack_message(callback):
                                   text=f'Первая валюта: {country_flags[callback.data]} {callback.data.title()}',
                                   reply_markup=None)
             bot.answer_callback_query(callback.id)
-            # bot.edit_message_reply_markup(chat_id=callback.message.chat.id, message_id=callback.message.message_id, reply_markup=None)
-            # print(request_string)
-
-            # bot.delete_message(chat_id=callback.message.chat.id, message_id=callback.message.message_id)
-
             bot.send_message(callback.message.chat.id, 'Выберите вторую валюту:', reply_markup=markup)
         else:
             btn1 = types.InlineKeyboardButton(text='1', callback_data = '1')
