@@ -59,11 +59,13 @@ def legit_values(message: telebot.types.Message):
 @bot.message_handler(content_types=['text', ])
 def convert(message: telebot.types.Message):
     global request_string
-    # print(message)
+
     id = message.chat.id
     request_string = check_request_string(id)
+
     try:
         if is_number(message.text) and len(request_string[id]) == 2:
+            bot.delete_message(id, message.message_id - 1)
             request_string[id].append(f"{message.text}")
             values = request_string[id]
         else:
