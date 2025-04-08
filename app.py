@@ -2,7 +2,7 @@ import telebot
 from datetime import datetime
 from telebot import types
 from extensions import CurrencyConverter, APIException
-from config import TOKEN, currencies, country_flags
+from config import currencies, country_flags
 import os
 from dotenv import load_dotenv
 
