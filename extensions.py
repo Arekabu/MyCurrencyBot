@@ -1,5 +1,4 @@
 import requests
-import json
 from config import currencies
 import os
 from dotenv import load_dotenv
