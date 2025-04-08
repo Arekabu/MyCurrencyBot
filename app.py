@@ -3,8 +3,12 @@ from datetime import datetime
 from telebot import types
 from extensions import CurrencyConverter, APIException
 from config import TOKEN, currencies, country_flags
+import os
+from dotenv import load_dotenv
 
-bot = telebot.TeleBot(TOKEN)
+load_dotenv()
+
+bot = telebot.TeleBot(os.getenv('TOKEN'))
 
 request_string = {}
 

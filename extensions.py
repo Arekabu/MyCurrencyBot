@@ -1,6 +1,11 @@
 import requests
 import json
-from config import API_KEY, currencies
+from config import currencies
+import os
+from dotenv import load_dotenv
+
+load_dotenv()
+API_KEY = os.getenv('API_KEY')
 
 class APIException(Exception):
     pass
