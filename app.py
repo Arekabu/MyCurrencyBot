@@ -1,10 +1,10 @@
-import telebot
 from datetime import datetime
+import os
+import telebot
 from telebot import types
+from dotenv import load_dotenv
 from extensions import CurrencyConverter, APIException
 from config import currencies, country_flags
-import os
-from dotenv import load_dotenv
 
 load_dotenv()
 
@@ -15,10 +15,10 @@ request_string = {}
 def check_request_string(user_id):
     global request_string
 
-    if user_id in request_string.keys():
+    if user_id in request_string:
         return request_string
-    else:
-        request_string[user_id] = []
+
+    request_string[user_id] = []
     return request_string
 
 def is_number(string):
@@ -36,7 +36,7 @@ def start_help(message: telebot.types.Message):
 
     markup = types.InlineKeyboardMarkup(row_width=3)
 
-    btns = [types.InlineKeyboardButton(text=f"{country_flags[key]} {key.title()}", callback_data = key) for key in currencies.keys()]
+    btns = [types.InlineKeyboardButton(text=f"{country_flags[key]} {key.title()}", callback_data = key) for key in currencies]
     # btn1 = types.InlineKeyboardButton(text='🇷🇺 Рубль', callback_data = 'рубль')
     # btn2 = types.InlineKeyboardButton(text='us Доллар', callback_data = 'доллар')
     # btn3 = types.InlineKeyboardButton(text='eu Евро', callback_data = 'евро')
@@ -55,7 +55,7 @@ def start_help(message: telebot.types.Message):
 @bot.message_handler(commands=['values'])
 def legit_values(message: telebot.types.Message):
     text = 'Доступные валюты:'
-    for key in currencies.keys():
+    for key in currencies:
         text = '\n    '.join([text, key])
 
     bot.reply_to(message, text)
@@ -101,7 +101,7 @@ def convert(message: telebot.types.Message):
     with open('logs.txt', 'a') as write_log:
         write_log.write(f'{datetime.now().strftime("%Y-%m-%d %H:%M:%S")} username:{message.chat.username} id:{id} request:{request_string[id]}\n')
 
-    del(request_string[id])
+    del request_string[id]
 
 @bot.callback_query_handler(func = lambda callback: True)
 def callback_message(callback):
@@ -109,10 +109,10 @@ def callback_message(callback):
     id = callback.from_user.id
     request_string = check_request_string(id)
     markup = types.InlineKeyboardMarkup(row_width=3)
-    if callback.data in currencies.keys():
+    if callback.data in currencies:
         request_string[id].append(callback.data)
         if len(request_string[id]) == 1:
-            for key, value in currencies.items():
+            for key in currencies:
                 if key == callback.data:
                     continue
                 markup.add(types.InlineKeyboardButton(text=f"{country_flags[key]} {key.title()}", callback_data = key))
