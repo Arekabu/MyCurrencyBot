@@ -35,7 +35,7 @@ class CurrencyConverter:
             timeout=10).json()
         return round(float(r['conversion_result']), 4)
 
-class Requests():
+class Requests:
     call_list = {}
 
     @classmethod
