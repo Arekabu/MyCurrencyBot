@@ -52,13 +52,14 @@ def legit_values(message: telebot.types.Message):
     bot.reply_to(message, text)
 
 @bot.message_handler(content_types=['text', ])
-def convert(message: telebot.types.Message):
-    r_id = message.chat.id
+def convert(message: telebot.types.Message, r_id=None):
+    if not r_id:
+        r_id = message.from_user.id
     Queue.check(r_id)
 
     try:
         if is_number(message.text) and Queue.len(r_id) == 2:
-            bot.delete_message(r_id, message.message_id - 1)
+            bot.delete_message(message.chat.id, message.message_id - 1)
 
         Queue.add(r_id, message.text)
         values = Queue.get(r_id)
@@ -134,6 +135,6 @@ def callback_message(callback):
                               text=f'Сумма первой валюты: {callback.data}',
                               reply_markup=None)
         callback.message.text = ' '.join(Queue.get(r_id))
-        convert(callback.message)
+        convert(callback.message, r_id)
 
 bot.infinity_polling(none_stop=True)
