@@ -11,7 +11,7 @@ import os
 import telebot
 from telebot import types
 from dotenv import load_dotenv
-from extensions import CurrencyConverter, APIException, Requests
+from extensions import CurrencyConverter, APIException, Queue
 from config import currencies, country_flags
 
 load_dotenv()
@@ -54,14 +54,14 @@ def legit_values(message: telebot.types.Message):
 @bot.message_handler(content_types=['text', ])
 def convert(message: telebot.types.Message):
     r_id = message.chat.id
-    Requests.check(r_id)
+    Queue.check(r_id)
 
     try:
-        if is_number(message.text) and Requests.len(r_id) == 2:
+        if is_number(message.text) and Queue.len(r_id) == 2:
             bot.delete_message(r_id, message.message_id - 1)
 
-        Requests.add(r_id, message.text)
-        values = Requests.get(r_id)
+        Queue.add(r_id, message.text)
+        values = Queue.get(r_id)
 
         if len(values) != 3:
             raise APIException("В запросе должно быть 3 параметра.")
@@ -86,19 +86,19 @@ def convert(message: telebot.types.Message):
         bot.send_message(message.chat.id, text)
 
     with open('logs.txt', 'a') as write_log:
-        write_log.write(f'{datetime.now().strftime("%Y-%m-%d %H:%M:%S")} username:{message.chat.username} id:{r_id} request:{Requests.get(r_id)}\n')
+        write_log.write(f'{datetime.now().strftime("%Y-%m-%d %H:%M:%S")} username:{message.chat.username} id:{r_id} request:{Queue.get(r_id)}\n')
 
-    Requests.delete(r_id)
+    Queue.delete(r_id)
 
 @bot.callback_query_handler(func = lambda callback: True)
 def callback_message(callback):
     r_id = callback.from_user.id
-    Requests.check(r_id)
+    Queue.check(r_id)
     markup = types.InlineKeyboardMarkup(row_width=3)
 
     if callback.data in currencies:
-        Requests.add(r_id, callback.data)
-        if Requests.len(r_id) == 1:
+        Queue.add(r_id, callback.data)
+        if Queue.len(r_id) == 1:
             for key in currencies:
                 if key == callback.data:
                     continue
@@ -127,13 +127,13 @@ def callback_message(callback):
                 'Выберите или введите вручную в сообщении сумму:',
                 reply_markup=markup)
     else:
-        Requests.add(r_id, callback.data)
+        Queue.add(r_id, callback.data)
         bot.answer_callback_query(callback.id)
         bot.edit_message_text(chat_id=callback.message.chat.id,
                               message_id=callback.message.message_id,
                               text=f'Сумма первой валюты: {callback.data}',
                               reply_markup=None)
-        callback.message.text = ' '.join(Requests.get(r_id))
+        callback.message.text = ' '.join(Queue.get(r_id))
         convert(callback.message)
 
 bot.infinity_polling(none_stop=True)
