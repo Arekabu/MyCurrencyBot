@@ -6,6 +6,9 @@
 так что может отваливаться из-за внеплановых работ на сервере.
 После 10:00 МСК рабочий бот становится доступен в 99% случаев.
 '''
+
+
+import logging
 from datetime import datetime
 import os
 import telebot
@@ -14,9 +17,16 @@ from dotenv import load_dotenv
 from extensions import CurrencyConverter, APIException, Queue
 from config import currencies, country_flags
 
+
+logging.basicConfig(filename='warnings.log',
+                    level=logging.WARNING)
+
+
 load_dotenv()
 
+
 bot = telebot.TeleBot(os.getenv('TOKEN'))
+
 
 def is_number(string):
     string = string.replace(',', '.') if ',' in string else string
@@ -25,6 +35,7 @@ def is_number(string):
         return True
     except ValueError:
         return False
+
 
 @bot.message_handler(commands=['start', 'help'])
 def start_help(message: telebot.types.Message):
@@ -43,6 +54,7 @@ def start_help(message: telebot.types.Message):
     markup.add(*btns)
     bot.send_message(message.from_user.id, text, reply_markup=markup, parse_mode="HTML")
 
+
 @bot.message_handler(commands=['values'])
 def legit_values(message: telebot.types.Message):
     text = 'Доступные валюты:'
@@ -50,6 +62,7 @@ def legit_values(message: telebot.types.Message):
         text = '\n    '.join([text, key])
 
     bot.reply_to(message, text)
+
 
 @bot.message_handler(content_types=['text', ])
 def convert(message: telebot.types.Message, r_id=None):
@@ -86,10 +99,13 @@ def convert(message: telebot.types.Message, r_id=None):
         text = f'{amount} {currencies[base]} = {price} {currencies[quote]}'
         bot.send_message(message.chat.id, text)
 
-    with open('logs.txt', 'a') as write_log:
+
+    with open('requests.log', 'a') as write_log:
         write_log.write(f'{datetime.now().strftime("%Y-%m-%d %H:%M:%S")} username:{message.chat.username} id:{r_id} request:{Queue.get(r_id)}\n')
 
+
     Queue.delete(r_id)
+
 
 @bot.callback_query_handler(func = lambda callback: True)
 def callback_message(callback):
@@ -136,5 +152,6 @@ def callback_message(callback):
                               reply_markup=None)
         callback.message.text = ' '.join(Queue.get(r_id))
         convert(callback.message, r_id)
+
 
 bot.infinity_polling(none_stop=True)
