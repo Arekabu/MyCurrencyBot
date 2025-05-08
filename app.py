@@ -19,6 +19,7 @@ from config import currencies, country_flags
 
 
 logging.basicConfig(filename='warnings.log',
+                    format='%(asctime)s - %(levelname)s - %(module)s - %(message)s',
                     level=logging.WARNING)
 
 
