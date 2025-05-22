@@ -22,6 +22,12 @@ logging.basicConfig(filename='warnings.log',
                     format='%(asctime)s - %(levelname)s - %(module)s - %(message)s',
                     level=logging.WARNING)
 
+logger_requests = logging.getLogger('requests_log')
+logger_requests.setLevel(logging.INFO)
+handler_requests = logging.FileHandler('requests.log')
+logger_requests.addHandler(handler_requests)
+logger_requests.propagate = False
+
 
 load_dotenv()
 
@@ -101,9 +107,7 @@ def convert(message: telebot.types.Message, r_id=None):
         bot.send_message(message.chat.id, text)
 
 
-    with open('requests.log', 'a') as write_log:
-        write_log.write(f'{datetime.now().strftime("%Y-%m-%d %H:%M:%S")} username:{message.chat.username} id:{r_id} request:{Queue.get(r_id)}\n')
-
+    logger_requests.info(f'{datetime.now().strftime("%Y-%m-%d %H:%M:%S")} username:{message.chat.username} id:{r_id} request:{Queue.get(r_id)}')
 
     Queue.delete(r_id)
 
