@@ -18,15 +18,23 @@ from extensions import CurrencyConverter, APIException, Queue
 from config import currencies, country_flags
 
 
-logging.basicConfig(filename='warnings.log',
-                    format='%(asctime)s - %(levelname)s - %(module)s - %(message)s',
-                    level=logging.WARNING)
+logging.basicConfig(
+    level=logging.WARNING,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+    filename='warnings.log',
+    encoding='utf-8',
+)
 
-logger_requests = logging.getLogger('requests_log')
+logger_requests = logging.getLogger('requests_logger')
 logger_requests.setLevel(logging.INFO)
-handler_requests = logging.FileHandler('requests.log')
-logger_requests.addHandler(handler_requests)
 logger_requests.propagate = False
+
+file_handler = logging.FileHandler(
+    'requests.log',
+    encoding='utf-8',
+)
+file_handler.setFormatter(logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s'))
+logger_requests.addHandler(file_handler)
 
 
 load_dotenv()
