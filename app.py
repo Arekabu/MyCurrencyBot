@@ -9,7 +9,8 @@
 
 
 import logging
-from datetime import datetime
+import time
+from logging.handlers import RotatingFileHandler
 import os
 import telebot
 from telebot import types
@@ -18,23 +19,37 @@ from extensions import CurrencyConverter, APIException, Queue
 from config import currencies, country_flags
 
 
+handler = RotatingFileHandler(
+    filename='/home/Kryakzenpuk/MyCurrencyBot/warnings.log',
+    maxBytes=5*1024*1024,  # 5 MB
+    backupCount=3,
+    encoding='utf-8'
+)
+
 logging.basicConfig(
     level=logging.WARNING,
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-    filename='warnings.log',
-    encoding='utf-8',
+    handlers=[handler],
+    force=True
 )
+
+logger = logging.getLogger(__name__)
 
 logger_requests = logging.getLogger('requests_logger')
 logger_requests.setLevel(logging.INFO)
-logger_requests.propagate = False
 
 file_handler = logging.FileHandler(
-    'requests.log',
+    '/home/Kryakzenpuk/MyCurrencyBot/requests.log',
     encoding='utf-8',
 )
 file_handler.setFormatter(logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s'))
+file_handler.setLevel(logging.INFO)
 logger_requests.addHandler(file_handler)
+logger_requests.propagate = False
+
+telebot_logger = logging.getLogger('telebot')
+telebot_logger.addHandler(handler)
+telebot_logger.setLevel(logging.WARNING)
 
 
 load_dotenv()
@@ -114,8 +129,7 @@ def convert(message: telebot.types.Message, r_id=None):
         text = f'{amount} {currencies[base]} = {price} {currencies[quote]}'
         bot.send_message(message.chat.id, text)
 
-
-    logger_requests.info(f'{datetime.now().strftime("%Y-%m-%d %H:%M:%S")} username:{message.chat.username} id:{r_id} request:{Queue.get(r_id)}')
+    logger_requests.info(f'username:{message.chat.username} id:{r_id} request:{Queue.get(r_id)}')
 
     Queue.delete(r_id)
 
@@ -167,4 +181,23 @@ def callback_message(callback):
         convert(callback.message, r_id)
 
 
-bot.infinity_polling(none_stop=True)
+def start_polling():
+    while True:
+        try:
+            logger.warning("Запуск polling...")
+            bot.remove_webhook()
+            bot.infinity_polling(
+                interval=2,
+                timeout=30,
+                long_polling_timeout=10,
+                none_stop=True,
+                logger_level=logging.WARNING
+            )
+        except Exception as e:
+            logger.error(f"Критическая ошибка: {e}. Перезапуск через 10 секунд...")
+            time.sleep(10)
+
+
+if __name__ == '__main__':
+    logger.warning("Бот запущен")
+    start_polling()
