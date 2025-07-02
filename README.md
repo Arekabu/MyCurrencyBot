@@ -1,6 +1,6 @@
 # MyCurrencyBot 💰
 
-Синхронный Telegram-бот для конвертации валют с поддержкой до 161 валют.
+Синхронный Telegram-бот для конвертации валют с поддержкой до 161 валют.  
 Курсы берутся с сайта https://app.exchangerate-api.com/
   
 Рабочий бот: [@myprimus_bot](https://web.telegram.org/a/#7557928664)  
