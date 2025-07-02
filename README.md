@@ -1,0 +1,34 @@
+# MyCurrencyBot 💰
+
+Синхронный Telegram-бот для конвертации валют с поддержкой 161 валют.
+Курсы берутся с сайта https://app.exchangerate-api.com/
+
+## 💎 Возможности
+- Конвертация по актуальным курсам
+- Поддерживается как строковый запрос, так и использование кнопок
+- История запросов
+- Гибкие настройки
+
+## 🚀 Установка
+1. Клонируйте репозиторий:
+   ```bash
+   git clone https://github.com/Arekabu/MyCurrencyBot.git
+   cd MyCurrencyBot
+   ```
+
+2. Установите зависимости:
+   ```bash
+   pip install -r requirements.txt
+   ```
+
+3. Создайте файл .env и добавьте TOKEN бота и API_KEY (бесплатно даётся на сайте https://app.exchangerate-api.com/ после регистрации):
+   ```text
+   TOKEN=ваш_токен_бота
+   API_KEY=ваш_api_key
+   ```
+
+ 4. Запустите бота:
+    ```bash
+    python app.py
+    ```
+   
