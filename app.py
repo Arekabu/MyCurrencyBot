@@ -19,8 +19,9 @@ from extensions import CurrencyConverter, APIException, Queue
 from config import currencies, country_flags
 
 
+war_path = os.path.join(os.path.dirname(__file__), 'warnings.log')
 handler = RotatingFileHandler(
-    filename='/home/Kryakzenpuk/MyCurrencyBot/warnings.log',
+    filename=war_path,
     maxBytes=200*1024,  # 200 KB
     backupCount=3,
     encoding='utf-8'
@@ -38,10 +39,9 @@ logger = logging.getLogger(__name__)
 logger_requests = logging.getLogger('requests_logger')
 logger_requests.setLevel(logging.INFO)
 
-file_handler = logging.FileHandler(
-    '/home/Kryakzenpuk/MyCurrencyBot/requests.log',
-    encoding='utf-8',
-)
+req_path = os.path.join(os.path.dirname(__file__), 'requests.log')
+file_handler = logging.FileHandler(req_path, encoding='utf-8',)
+
 file_handler.setFormatter(logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s'))
 file_handler.setLevel(logging.INFO)
 logger_requests.addHandler(file_handler)
