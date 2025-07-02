@@ -3,11 +3,14 @@ import requests
 from dotenv import load_dotenv
 from config import currencies
 
+
 load_dotenv()
 API_KEY = os.getenv('API_KEY')
 
+
 class APIException(Exception):
     pass
+
 
 class CurrencyConverter:
     @staticmethod
@@ -34,6 +37,7 @@ class CurrencyConverter:
             f'https://v6.exchangerate-api.com/v6/{API_KEY}/pair/{base_ticker}/{quote_ticker}/{amount}',
             timeout=10).json()
         return round(float(r['conversion_result']), 4)
+
 
 class Queue:
     call_list = {}
