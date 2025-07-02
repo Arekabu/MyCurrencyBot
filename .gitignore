@@ -1,7 +1,9 @@
 .idea
 .venv
 __pycache__
-logs.txt
 .env
 warnings.log
+warnings.log.1
+warnings.log.2
+warnings.log.3
 requests.log
