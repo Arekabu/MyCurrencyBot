@@ -21,7 +21,7 @@ from config import currencies, country_flags
 
 handler = RotatingFileHandler(
     filename='/home/Kryakzenpuk/MyCurrencyBot/warnings.log',
-    maxBytes=5*1024*1024,  # 5 MB
+    maxBytes=200*1024,  # 200 KB
     backupCount=3,
     encoding='utf-8'
 )
@@ -55,7 +55,7 @@ telebot_logger.setLevel(logging.WARNING)
 load_dotenv()
 
 
-bot = telebot.TeleBot(os.getenv('TOKEN'))
+bot = telebot.TeleBot(os.getenv('TOKEN'), skip_pending=True)
 
 
 def is_number(string):
@@ -89,7 +89,7 @@ def start_help(message: telebot.types.Message):
 def legit_values(message: telebot.types.Message):
     text = 'Доступные валюты:'
     for key in currencies:
-        text = '\n    '.join([text, key])
+        text = '\n    '.join([text, f'{country_flags[key]} {key}'])
 
     bot.reply_to(message, text)
 
