@@ -34,8 +34,6 @@ logging.basicConfig(
     force=True
 )
 
-logger = logging.getLogger(__name__)
-
 logger_requests = logging.getLogger('requests_logger')
 logger_requests.setLevel(logging.INFO)
 
@@ -50,6 +48,9 @@ logger_requests.propagate = False
 telebot_logger = logging.getLogger('telebot')
 telebot_logger.addHandler(handler)
 telebot_logger.setLevel(logging.WARNING)
+telebot_logger.propagate = True
+
+logger = logging.getLogger(__name__)
 
 
 load_dotenv()
